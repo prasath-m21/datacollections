@@ -315,7 +315,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📈 Hourly Data Dashboard</h1>
+            <h1>R&M Hourly Data Dashboard</h1>
             <div class="controls">
                 <a href="./index.html" class="btn btn-primary">➕ New Entry</a>
                 <button onclick="refreshData()" class="btn btn-success" id="refreshBtn">🔄 Refresh</button>
@@ -401,6 +401,38 @@
                 return timeStr;
             }
             
+            // Special handling for Google Sheets timestamp format (1899-12-30T...)
+            // Google Sheets stores time as a date with 1899-12-30
+            if (timeStr.includes('1899-12-30T')) {
+                const match = timeStr.match(/T(\d{2}):(\d{2}):/);
+                if (match) {
+                    // Convert UTC time to IST by adding 5:30
+                    let hours = parseInt(match[1]);
+                    let minutes = parseInt(match[2]);
+                    
+                    // Add 5 hours and 30 minutes for IST
+                    minutes += 30;
+                    if (minutes >= 60) {
+                        hours += 1;
+                        minutes -= 60;
+                    }
+                    hours += 5;
+                    if (hours >= 24) {
+                        hours -= 24;
+                    }
+                    
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                }
+            }
+            
+            // Handle ISO timestamp format (normal dates)
+            if (timeStr.includes('T') && !timeStr.includes('1899')) {
+                const match = timeStr.match(/T(\d{2}):(\d{2})/);
+                if (match) {
+                    return `${match[1]}:${match[2]}`;
+                }
+            }
+            
             // Extract HH:MM from various formats
             // Handle time with seconds (HH:MM:SS)
             if (/\d{1,2}:\d{2}:\d{2}/.test(timeStr)) {
@@ -427,17 +459,6 @@
                     }
                     
                     return `${hours.toString().padStart(2, '0')}:${minutes}`;
-                }
-            }
-            
-            // Handle ISO timestamp format
-            if (timeStr.includes('T')) {
-                const timePart = timeStr.split('T')[1];
-                if (timePart) {
-                    const match = timePart.match(/(\d{2}):(\d{2})/);
-                    if (match) {
-                        return `${match[1]}:${match[2]}`;
-                    }
                 }
             }
             
@@ -579,3 +600,4 @@
     </script>
 </body>
 </html>
+
