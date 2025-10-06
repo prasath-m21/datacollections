@@ -156,6 +156,28 @@
             font-size: 18px;
             font-weight: 600;
         }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #cfe2ff;
+            color: #084298;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        
+        .error-message {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -210,13 +232,16 @@
                 <a href="./dashboard.html" class="dashboard-btn" target="_blank">📈 View Dashboard</a>
             </div>
             
-            <div class="success-message" id="successMsg">
-                ✅ Data submitted successfully! Redirecting to dashboard...
-            </div>
+            <div class="loading" id="loadingMsg">⏳ Submitting data to server...</div>
+            <div class="success-message" id="successMsg">✅ Data submitted successfully! Redirecting to dashboard...</div>
+            <div class="error-message" id="errorMsg">❌ Error submitting data. Please try again.</div>
         </form>
     </div>
 
     <script>
+        // REPLACE WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5uzhbw23Llg-US6qCo7Lhq-VgvkaW1IXSbZ4Ai3FKLZ8Xn49qmoshgQZLRhD6vca2/exec';
+        
         // Display current timestamp
         function updateTimestamp() {
             const now = new Date();
@@ -262,26 +287,41 @@
             submitData();
         });
         
-        function submitData() {
+        async function submitData() {
             const submitBtn = document.getElementById('submitBtn');
+            const loadingMsg = document.getElementById('loadingMsg');
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            // Hide all messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // Show loading
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Submitting...';
+            loadingMsg.style.display = 'block';
             
             const formData = new FormData(document.getElementById('dataForm'));
             const now = new Date();
             
-            // Get current hour (10 AM to 6 PM format)
-            const hour = now.getHours();
-            const timeSlot = now.toLocaleString('en-IN', { 
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true 
-            });
+            // Format date as dd-mm-yyyy
+            const day = now.getDate().toString().padStart(2, '0');
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const year = now.getFullYear();
+            const formattedDate = `${day}-${month}-${year}`;
             
-            const data = {
+            // Format time as HH:MM (24-hour format)
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}`;
+            
+            // Prepare URL with parameters
+            const params = new URLSearchParams({
+                action: 'addData',
                 timestamp: now.toISOString(),
-                timeSlot: timeSlot,
-                date: now.toLocaleDateString('en-IN'),
+                date: formattedDate,
+                timeSlot: formattedTime,
                 user1: formData.get('user1') || 'null',
                 user2: formData.get('user2') || 'null',
                 user3: formData.get('user3') || 'null',
@@ -294,25 +334,36 @@
                 user10: formData.get('user10') || 'null',
                 user11: formData.get('user11') || 'null',
                 user12: formData.get('user12') || 'null'
-            };
+            });
             
-            // Get existing data
-            let allData = JSON.parse(localStorage.getItem('hourlyData') || '[]');
-            
-            // Add new entry
-            allData.push(data);
-            
-            // Save to localStorage
-            localStorage.setItem('hourlyData', JSON.stringify(allData));
-            
-            // Show success message
-            document.getElementById('successMsg').style.display = 'block';
-            submitBtn.textContent = '✅ Submitted!';
-            
-            // Redirect to dashboard after 2 seconds
-            setTimeout(() => {
-                window.location.href = './dashboard.html';
-            }, 1000);
+            try {
+                const response = await fetch(SCRIPT_URL + '?' + params.toString());
+                const result = await response.json();
+                
+                loadingMsg.style.display = 'none';
+                
+                if (result.status === 'success') {
+                    successMsg.style.display = 'block';
+                    submitBtn.textContent = '✅ Submitted!';
+                    
+                    // Redirect to dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = './dashboard.html';
+                    }, 1000);
+                } else {
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = '❌ ' + (result.message || 'Error submitting data. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '✅ Submit Data';
+                }
+            } catch (error) {
+                loadingMsg.style.display = 'none';
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = '❌ Network error. Please check your connection and try again.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Submit Data';
+                console.error('Error:', error);
+            }
         }
     </script>
 </body>

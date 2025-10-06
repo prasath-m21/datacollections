@@ -4,7 +4,7 @@ import time
 
 # ==================== CONFIGURATION ====================
 # Replace with your GitHub Pages URL
-DASHBOARD_URL = "https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/dashboard.html"
+DASHBOARD_URL = ""
 
 # Replace with recipient's phone number (with country code)
 PHONE_NUMBER = "+918217696151"  # Example: Indian number
@@ -28,6 +28,8 @@ def send_whatsapp_message():
 
 🔗 View Dashboard:
 {DASHBOARD_URL}
+
+💡 This dashboard shows real-time data from all users across all devices.
 
 _This is an automated message_
 """
