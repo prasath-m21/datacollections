@@ -363,113 +363,114 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5uzhbw23Llg-US6qCo7Lhq-VgvkaW1IXSbZ4Ai3FKLZ8Xn49qmoshgQZLRhD6vca2/exec';
         
         // Function to extract only dd-mm-yyyy from any date format
-        function cleanDateFormat(dateStr) {
-            if (!dateStr) return 'N/A';
-            
-            // If already in dd-mm-yyyy format, return as is
-            if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
-                return dateStr;
-            }
-            
-            // Extract date parts from various formats
-            // Handle ISO date format (YYYY-MM-DD or with timestamp)
-            if (dateStr.includes('T') || /^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-                const dateOnly = dateStr.split('T')[0];
-                const [year, month, day] = dateOnly.split('-');
-                return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
-            }
-            
-            // Handle date with slashes (DD/MM/YYYY or MM/DD/YYYY)
-            if (dateStr.includes('/')) {
-                const parts = dateStr.split('/');
-                if (parts.length >= 3) {
-                    // Assuming DD/MM/YYYY format
-                    return `${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[2]}`;
-                }
-            }
-            
-            // If no recognized format, return as is
-            return dateStr;
-        }
-        
+       function cleanDateFormat(dateStr) {
+  if (!dateStr) return 'N/A';
+
+  // If already in dd-mm-yyyy format
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+
+  // Try to create a Date object safely
+  const parsedDate = new Date(dateStr);
+
+  // If invalid date
+  if (isNaN(parsedDate)) return dateStr;
+
+  // Get day, month, year from the Date object
+  const day = String(parsedDate.getDate()).padStart(2, '0');
+  const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // month is 0-indexed
+  const year = parsedDate.getFullYear();
+
+  return `${day}-${month}-${year}`;
+}
+
         // Function to extract only HH:MM from time formats
         function cleanTimeFormat(timeStr) {
-            if (!timeStr) return 'N/A';
-            
-            // If already in HH:MM format, return as is
-            if (/^\d{2}:\d{2}$/.test(timeStr)) {
-                return timeStr;
-            }
-            
-            // Special handling for Google Sheets timestamp format (1899-12-30T...)
-            // Google Sheets stores time as a date with 1899-12-30
-            if (timeStr.includes('1899-12-30T')) {
-                const match = timeStr.match(/T(\d{2}):(\d{2}):/);
-                if (match) {
-                    // Convert UTC time to IST by adding 5:30
-                    let hours = parseInt(match[1]);
-                    let minutes = parseInt(match[2]);
-                    
-                    // Add 5 hours and 30 minutes for IST
-                    minutes += 30;
-                    if (minutes >= 60) {
-                        hours += 1;
-                        minutes -= 60;
-                    }
-                    hours += 5;
-                    if (hours >= 24) {
-                        hours -= 24;
-                    }
-                    
-                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-                }
-            }
-            
-            // Handle ISO timestamp format (normal dates)
-            if (timeStr.includes('T') && !timeStr.includes('1899')) {
-                const match = timeStr.match(/T(\d{2}):(\d{2})/);
-                if (match) {
-                    return `${match[1]}:${match[2]}`;
-                }
-            }
-            
-            // Extract HH:MM from various formats
-            // Handle time with seconds (HH:MM:SS)
-            if (/\d{1,2}:\d{2}:\d{2}/.test(timeStr)) {
-                const match = timeStr.match(/(\d{1,2}:\d{2})/);
-                if (match) {
-                    const [hours, minutes] = match[1].split(':');
-                    return `${hours.padStart(2, '0')}:${minutes}`;
-                }
-            }
-            
-            // Handle time with AM/PM
-            if (/\d{1,2}:\d{2}\s*(AM|PM)/i.test(timeStr)) {
-                const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-                if (match) {
-                    let hours = parseInt(match[1]);
-                    const minutes = match[2];
-                    const meridiem = match[3].toUpperCase();
-                    
-                    // Convert to 24-hour format
-                    if (meridiem === 'PM' && hours !== 12) {
-                        hours += 12;
-                    } else if (meridiem === 'AM' && hours === 12) {
-                        hours = 0;
-                    }
-                    
-                    return `${hours.toString().padStart(2, '0')}:${minutes}`;
-                }
-            }
-            
-            // If contains HH:MM anywhere in the string, extract it
-            const basicMatch = timeStr.match(/(\d{1,2}):(\d{2})/);
-            if (basicMatch) {
-                return `${basicMatch[1].padStart(2, '0')}:${basicMatch[2]}`;
-            }
-            
-            return timeStr;
-        }
+  if (!timeStr) return 'N/A';
+
+  // Normalize whitespace
+  timeStr = String(timeStr).trim();
+
+  // If already in HH:MM format (0-padded or not), return normalized
+  const hhmmMatch = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+  if (hhmmMatch) {
+    return hhmmMatch[1].padStart(2, '0') + ':' + hhmmMatch[2];
+  }
+
+  // Helper: pad a minute/hour pair
+  const fmt = (h, m) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+  // Try ISO-like strings (contain 'T') or any parseable string: prefer using Date + timezone conversion
+  if (timeStr.includes('T') || /\d{4}-\d{2}-\d{2}/.test(timeStr)) {
+    // Special-case Google Sheets time (date 1899-12-30)
+    if (timeStr.includes('1899-12-30')) {
+      // Extract HH:MM or HH:MM:SS from the T part
+      const m = timeStr.match(/T(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+      if (m) {
+        let hours = parseInt(m[1], 10);
+        let minutes = parseInt(m[2], 10);
+
+        // Convert from UTC to IST by adding 5 hours 30 minutes (Google Sheets times are effectively a "time-only" value).
+        minutes += 30;
+        hours += Math.floor(minutes / 60);
+        minutes = minutes % 60;
+        hours = (hours + 5) % 24; // add 5 hours remaining (we already added 30 mins)
+        return fmt(hours, minutes);
+      }
+    }
+
+    // For general ISO timestamps, create Date and convert to IST
+    const d = new Date(timeStr);
+    if (!isNaN(d)) {
+      // Preferred: use toLocaleTimeString with timeZone (works in modern browsers & Node with full-icu)
+      try {
+        const parts = d.toLocaleTimeString('en-GB', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Kolkata'
+        });
+        // parts like "07:30"
+        if (/^\d{2}:\d{2}$/.test(parts)) return parts;
+      } catch (e) {
+        // If runtime doesn't support timeZone option, fall back to manual UTC math below
+      }
+
+      // Fallback: convert using UTC values and add IST offset (UTC+5:30)
+      const utcMinutes = d.getUTCHours() * 60 + d.getUTCMinutes();
+      const istTotal = (utcMinutes + 5 * 60 + 30) % (24 * 60);
+      const h = Math.floor(istTotal / 60);
+      const m2 = istTotal % 60;
+      return fmt(h, m2);
+    }
+  }
+
+  // Handle HH:MM:SS anywhere
+  const secMatch = timeStr.match(/(\d{1,2}):(\d{2}):\d{2}/);
+  if (secMatch) {
+    return secMatch[1].padStart(2, '0') + ':' + secMatch[2];
+  }
+
+  // Handle AM/PM formats (e.g., "3:45 PM", "12:00am")
+  const ampm = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (ampm) {
+    let hrs = parseInt(ampm[1], 10);
+    const mins = ampm[2];
+    const mer = ampm[3].toUpperCase();
+    if (mer === 'PM' && hrs !== 12) hrs += 12;
+    if (mer === 'AM' && hrs === 12) hrs = 0;
+    return fmt(hrs, mins);
+  }
+
+  // Generic fallback: extract first HH:MM found anywhere
+  const basic = timeStr.match(/(\d{1,2}):(\d{2})/);
+  if (basic) {
+    return basic[1].padStart(2, '0') + ':' + basic[2];
+  }
+
+  // If nothing matched, return original
+  return timeStr;
+}
+
         
         async function loadData() {
             const tableBody = document.getElementById('tableBody');
