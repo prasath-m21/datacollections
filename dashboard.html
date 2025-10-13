@@ -1,315 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Data Dashboard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        /* (styles unchanged) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             min-height: 100vh;
         }
-        
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        h1 {
-            color: #2c3e50;
-            font-size: 36px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            word-break: break-all;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .table-wrapper {
-            overflow-x: auto;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            min-width: 800px;
-        }
-        
-        th {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 15px 10px;
-            text-align: center;
-            font-weight: 600;
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            font-size: 14px;
-        }
-        
-        td {
-            padding: 12px 8px;
-            border: 1px solid #dee2e6;
-            text-align: center;
-            font-size: 14px;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        
-        tr:hover {
-            background-color: #e9ecef;
-        }
-        
-        .null-value {
-            color: #dc3545;
-            font-style: italic;
-            opacity: 0.6;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-            font-size: 18px;
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-            font-size: 18px;
-        }
-        
-        .error {
-            text-align: center;
-            padding: 60px 20px;
-            color: #dc3545;
-            font-size: 18px;
-        }
-        
-        .last-updated {
-            text-align: center;
-            color: #6c757d;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        
-        /* Scroll indicator for mobile */
-        .scroll-indicator {
-            display: none;
-            text-align: center;
-            color: #6c757d;
-            font-size: 12px;
-            margin-top: 10px;
-            font-style: italic;
-        }
-        
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 20px;
-                border-radius: 10px;
-            }
-            
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            h1 {
-                font-size: 28px;
-                margin-bottom: 15px;
-            }
-            
-            .controls {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .btn {
-                padding: 10px 20px;
-                font-size: 13px;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .stat-value {
-                font-size: 24px;
-            }
-            
-            .table-wrapper {
-                padding: 10px;
-                margin: 0 -10px;
-                border-radius: 0;
-            }
-            
-            th {
-                padding: 10px 5px;
-                font-size: 12px;
-            }
-            
-            td {
-                padding: 8px 5px;
-                font-size: 12px;
-            }
-            
-            .scroll-indicator {
-                display: block;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 24px;
-            }
-            
-            .btn {
-                padding: 8px 16px;
-                font-size: 12px;
-            }
-            
-            .stat-value {
-                font-size: 20px;
-            }
-            
-            .stat-label {
-                font-size: 12px;
-            }
-            
-            th {
-                padding: 8px 3px;
-                font-size: 11px;
-            }
-            
-            td {
-                padding: 6px 3px;
-                font-size: 11px;
-            }
-        }
-        
-        /* Improved mobile table scrolling */
-        @media (max-width: 768px) {
-            .table-wrapper::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                width: 30px;
-                background: linear-gradient(to right, transparent, rgba(0,0,0,0.1));
-                pointer-events: none;
-            }
-            
-            .table-wrapper {
-                position: relative;
-            }
-        }
+        .container { max-width: 1600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #667eea; }
+        h1 { color: #2c3e50; font-size: 36px; }
+        .controls { display: flex; gap: 15px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
+        .stat-label { font-size: 14px; opacity: 0.9; }
+        .table-wrapper { overflow-x: auto; background: #f8f9fa; padding: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 15px; text-align: center; font-weight: 600; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+        td { padding: 12px; border: 1px solid #dee2e6; text-align: center; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #e9ecef; }
+        .null-value { color: #dc3545; font-style: italic; opacity: 0.6; }
+        .loading { text-align: center; padding: 60px; color: #6c757d; font-size: 18px; }
+        .no-data { text-align: center; padding: 60px; color: #6c757d; font-size: 18px; }
+        .error { text-align: center; padding: 60px; color: #dc3545; font-size: 18px; }
+        .last-updated { text-align: center; color: #6c757d; margin-top: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -322,16 +50,16 @@
                 <button onclick="clearData()" class="btn btn-danger" id="clearBtn">🗑️ Clear All</button>
             </div>
         </div>
-        
+
         <div class="stats" id="statsContainer"></div>
-        
+
         <div class="table-wrapper">
             <table id="dataTable">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Date</th>
-                        <th>Time</th>
+                        <th>Time Slot</th>
                         <th>User 1</th>
                         <th>User 2</th>
                         <th>User 3</th>
@@ -352,180 +80,69 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="scroll-indicator">← Swipe horizontally to view all data →</div>
         </div>
-        
+
         <div class="last-updated" id="lastUpdated"></div>
     </div>
 
     <script>
         // REPLACE WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5uzhbw23Llg-US6qCo7Lhq-VgvkaW1IXSbZ4Ai3FKLZ8Xn49qmoshgQZLRhD6vca2/exec';
-        
-        // Function to extract only dd-mm-yyyy from any date format
-       function cleanDateFormat(dateStr) {
-  if (!dateStr) return 'N/A';
 
-  // If already in dd-mm-yyyy format
-  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
-
-  // Try to create a Date object safely
-  const parsedDate = new Date(dateStr);
-
-  // If invalid date
-  if (isNaN(parsedDate)) return dateStr;
-
-  // Get day, month, year from the Date object
-  const day = String(parsedDate.getDate()).padStart(2, '0');
-  const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // month is 0-indexed
-  const year = parsedDate.getFullYear();
-
-  return `${day}-${month}-${year}`;
-}
-
-        // Function to extract only HH:MM from time formats
-        function cleanTimeFormat(timeStr) {
-  if (!timeStr) return 'N/A';
-
-  // Normalize whitespace
-  timeStr = String(timeStr).trim();
-
-  // If already in HH:MM format (0-padded or not), return normalized
-  const hhmmMatch = timeStr.match(/^(\d{1,2}):(\d{2})$/);
-  if (hhmmMatch) {
-    return hhmmMatch[1].padStart(2, '0') + ':' + hhmmMatch[2];
-  }
-
-  // Helper: pad a minute/hour pair
-  const fmt = (h, m) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-
-  // Try ISO-like strings (contain 'T') or any parseable string: prefer using Date + timezone conversion
-  if (timeStr.includes('T') || /\d{4}-\d{2}-\d{2}/.test(timeStr)) {
-    // Special-case Google Sheets time (date 1899-12-30)
-    if (timeStr.includes('1899-12-30')) {
-      // Extract HH:MM or HH:MM:SS from the T part
-      const m = timeStr.match(/T(\d{1,2}):(\d{2})(?::(\d{2}))?/);
-      if (m) {
-        let hours = parseInt(m[1], 10);
-        let minutes = parseInt(m[2], 10);
-
-        // Convert from UTC to IST by adding 5 hours 30 minutes (Google Sheets times are effectively a "time-only" value).
-        minutes += 30;
-        hours += Math.floor(minutes / 60);
-        minutes = minutes % 60;
-        hours = (hours + 5) % 24; // add 5 hours remaining (we already added 30 mins)
-        return fmt(hours, minutes);
-      }
-    }
-
-    // For general ISO timestamps, create Date and convert to IST
-    const d = new Date(timeStr);
-    if (!isNaN(d)) {
-      // Preferred: use toLocaleTimeString with timeZone (works in modern browsers & Node with full-icu)
-      try {
-        const parts = d.toLocaleTimeString('en-GB', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: 'Asia/Kolkata'
-        });
-        // parts like "07:30"
-        if (/^\d{2}:\d{2}$/.test(parts)) return parts;
-      } catch (e) {
-        // If runtime doesn't support timeZone option, fall back to manual UTC math below
-      }
-
-      // Fallback: convert using UTC values and add IST offset (UTC+5:30)
-      const utcMinutes = d.getUTCHours() * 60 + d.getUTCMinutes();
-      const istTotal = (utcMinutes + 5 * 60 + 30) % (24 * 60);
-      const h = Math.floor(istTotal / 60);
-      const m2 = istTotal % 60;
-      return fmt(h, m2);
-    }
-  }
-
-  // Handle HH:MM:SS anywhere
-  const secMatch = timeStr.match(/(\d{1,2}):(\d{2}):\d{2}/);
-  if (secMatch) {
-    return secMatch[1].padStart(2, '0') + ':' + secMatch[2];
-  }
-
-  // Handle AM/PM formats (e.g., "3:45 PM", "12:00am")
-  const ampm = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-  if (ampm) {
-    let hrs = parseInt(ampm[1], 10);
-    const mins = ampm[2];
-    const mer = ampm[3].toUpperCase();
-    if (mer === 'PM' && hrs !== 12) hrs += 12;
-    if (mer === 'AM' && hrs === 12) hrs = 0;
-    return fmt(hrs, mins);
-  }
-
-  // Generic fallback: extract first HH:MM found anywhere
-  const basic = timeStr.match(/(\d{1,2}):(\d{2})/);
-  if (basic) {
-    return basic[1].padStart(2, '0') + ':' + basic[2];
-  }
-
-  // If nothing matched, return original
-  return timeStr;
-}
-
-        
         async function loadData() {
             const tableBody = document.getElementById('tableBody');
             const statsContainer = document.getElementById('statsContainer');
             const refreshBtn = document.getElementById('refreshBtn');
-            
+
             try {
                 refreshBtn.disabled = true;
                 refreshBtn.textContent = '⏳ Loading...';
-                
+
                 const response = await fetch(SCRIPT_URL + '?action=getData');
+                // Check response.ok before parsing
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status} ${response.statusText}`);
+                }
                 const result = await response.json();
-                
+
                 if (result.status === 'success' && result.data) {
                     const data = result.data;
-                    
-                    if (data.length === 0) {
+
+                    if (!Array.isArray(data) || data.length === 0) {
                         tableBody.innerHTML = '<tr><td colspan="15" class="no-data">No data available yet. Start collecting data!</td></tr>';
                         statsContainer.innerHTML = '';
                         refreshBtn.disabled = false;
                         refreshBtn.textContent = '🔄 Refresh';
+                        // update last-updated timestamp even when no data
+                        updateLastUpdated();
                         return;
                     }
-                    
-                    // Display statistics - Only Total Entries and Latest Update Time
+
                     const totalEntries = data.length;
-                    
-                    // Get current time in IST
-                    const currentTime = new Date().toLocaleString('en-IN', {
-                        timeZone: 'Asia/Kolkata',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false
-                    });
-                    
+                    // guard latestEntry in case data shape changed
+                    const latestEntry = data[data.length - 1] || null;
+
+                    // Build stats HTML (no "today" stat as requested)
                     statsContainer.innerHTML = `
                         <div class="stat-card">
                             <div class="stat-value">${totalEntries}</div>
                             <div class="stat-label">Total Entries</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value">${currentTime} IST</div>
+                            <div class="stat-value">${latestEntry && latestEntry.TimeSlot ? formatTimeIST(latestEntry.TimeSlot) : 'N/A'}</div>
                             <div class="stat-label">Latest Update</div>
                         </div>
                     `;
-                    
-                    // Display table data
+
                     tableBody.innerHTML = '';
-                    data.reverse().forEach((entry, index) => {
+                    // reverse for display (don't mutate original)
+                    const displayData = [...data].reverse();
+                    displayData.forEach((entry, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td><strong>${data.length - index}</strong></td>
-                            <td>${cleanDateFormat(entry.Date)}</td>
-                            <td><strong>${cleanTimeFormat(entry.TimeSlot)}</strong></td>
+                            <td><strong>${displayData.length - index}</strong></td>
+                            <td>${formatDate(entry.Date)}</td>
+                            <td><strong>${formatTimeIST(entry.TimeSlot)}</strong></td>
                             <td>${formatValue(entry.User1)}</td>
                             <td>${formatValue(entry.User2)}</td>
                             <td>${formatValue(entry.User3)}</td>
@@ -541,43 +158,139 @@
                         `;
                         tableBody.appendChild(row);
                     });
-                    
-                    // Update last updated time
-                    document.getElementById('lastUpdated').textContent = 
-                        'Last updated: ' + new Date().toLocaleString('en-IN', { hour12: true });
+
+                    // update last-updated
+                    updateLastUpdated();
                 } else {
-                    tableBody.innerHTML = '<tr><td colspan="15" class="error">❌ Error loading data. Please try again.</td></tr>';
+                    // server returned success but result shape unexpected
+                    tableBody.innerHTML = '<tr><td colspan="15" class="error">❌ Error loading data (unexpected response). Check console for details.</td></tr>';
+                    console.error('Unexpected response:', result);
                 }
             } catch (error) {
-                console.error('Error:', error);
-                tableBody.innerHTML = '<tr><td colspan="15" class="error">❌ Network error. Please check your connection.</td></tr>';
+                console.error('Fetch / processing error:', error);
+                // Show a clearer error message to the user
+                tableBody.innerHTML = `<tr><td colspan="15" class="error">❌ Network or server error: ${escapeHtml(error.message || String(error))}</td></tr>`;
+                // also reflect last-updated as error time (optional)
+                document.getElementById('lastUpdated').textContent = 'Last updated: —';
             } finally {
                 refreshBtn.disabled = false;
                 refreshBtn.textContent = '🔄 Refresh';
             }
         }
-        
+
         function formatValue(value) {
-            if (value === 'null' || value === '' || !value) {
+            if (value === 'null' || value === '' || value === null || typeof value === 'undefined') {
                 return '<span class="null-value">null</span>';
             }
-            return value;
+            return String(value);
         }
-        
+
+        // Format Date as dd-mm (if parseable). Otherwise return raw string.
+        function formatDate(dateStr) {
+            if (!dateStr) return '<span class="null-value">null</span>';
+            const parsed = new Date(dateStr);
+            if (!isNaN(parsed) && dateStr.includes('-')) {
+                const d = String(parsed.getDate()).padStart(2, '0');
+                const m = String(parsed.getMonth() + 1).padStart(2, '0');
+                return `${d}-${m}`;
+            }
+            const dm = String(dateStr).match(/^(\d{1,2})[\/\-](\d{1,2})([\/\-]\d{2,4})?$/);
+            if (dm) {
+                const d = String(dm[1]).padStart(2, '0');
+                const m = String(dm[2]).padStart(2, '0');
+                return `${d}-${m}`;
+            }
+            return String(dateStr);
+        }
+
+        /**
+         * formatTimeIST(timeStr)
+         * - If timeStr is an ISO/full timestamp or contains AM/PM: parse Date and convert that instant to IST (hh:mm).
+         * - If timeStr is a simple "HH:MM" (no timezone info), treat it as a wall-clock time and return normalized "hh:mm" (no conversion).
+         * - If parsing fails, return original string.
+         */
+        function formatTimeIST(timeStr) {
+            if (!timeStr) return '<span class="null-value">null</span>';
+            timeStr = String(timeStr).trim();
+            // Detect ISO-like or explicit timezone or AM/PM usage
+            const isoLike = /T|Z|[+-]\d{2}:?\d{2}/;        // contains T, Z or timezone offset
+            const ampm = /am|pm/i;
+            const hhmmWithAmpm = /^(\d{1,2}):(\d{2})(?:\s?([AaPp][Mm]))?$/;
+
+            // If ISO-like or contains AM/PM, parse as Date and convert to IST
+            if (isoLike.test(timeStr) || ampm.test(timeStr)) {
+                const parsed = new Date(timeStr);
+                if (!isNaN(parsed)) {
+                    return parsed.toLocaleTimeString('en-IN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone: 'Asia/Kolkata'
+                    });
+                }
+            }
+
+            // If plain HH:MM (maybe with AM/PM), normalize and return as wall-clock (no timezone conversion)
+            const m = timeStr.match(hhmmWithAmpm);
+            if (m) {
+                let h = parseInt(m[1], 10);
+                const min = m[2];
+                const ampmPart = m[3];
+                if (ampmPart) {
+                    if (/pm/i.test(ampmPart) && h < 12) h += 12;
+                    if (/am/i.test(ampmPart) && h === 12) h = 0;
+                }
+                return String(h).padStart(2, '0') + ':' + min;
+            }
+
+            // fallback: try parse as Date, show IST
+            const p2 = new Date(timeStr);
+            if (!isNaN(p2)) {
+                return p2.toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: 'Asia/Kolkata'
+                });
+            }
+
+            return timeStr;
+        }
+
+        function updateLastUpdated() {
+            const nowIST = new Date().toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Kolkata'
+            });
+            document.getElementById('lastUpdated').textContent = 'Last updated: ' + nowIST;
+        }
+
+        // small helper to sanitize messages shown in the table
+        function escapeHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         async function refreshData() {
             await loadData();
         }
-        
+
         async function clearData() {
             if (confirm('⚠️ Are you sure you want to clear all data? This cannot be undone!')) {
                 const clearBtn = document.getElementById('clearBtn');
                 clearBtn.disabled = true;
                 clearBtn.textContent = '⏳ Clearing...';
-                
+
                 try {
                     const response = await fetch(SCRIPT_URL + '?action=clearData');
+                    if (!response.ok) throw new Error(`Server returned ${response.status}`);
                     const result = await response.json();
-                    
                     if (result.status === 'success') {
                         alert('🗑️ All data has been cleared!');
                         await loadData();
@@ -586,19 +299,17 @@
                     }
                 } catch (error) {
                     alert('❌ Network error. Please check your connection.');
+                    console.error('clearData error:', error);
                 } finally {
                     clearBtn.disabled = false;
                     clearBtn.textContent = '🗑️ Clear All';
                 }
             }
         }
-        
-        // Load data on page load
+
+        // initial load + auto refresh
         loadData();
-        
-        // Auto-refresh every 30 seconds
         setInterval(loadData, 30000);
     </script>
 </body>
 </html>
-

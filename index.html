@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hourly Data Entry</title>
+    <title> R&M Hourly Data Entry</title>
     <style>
         * {
             margin: 0;
@@ -305,23 +305,18 @@
             const formData = new FormData(document.getElementById('dataForm'));
             const now = new Date();
             
-            // Format date as dd-mm-yyyy
-            const day = now.getDate().toString().padStart(2, '0');
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const year = now.getFullYear();
-            const formattedDate = `${day}-${month}-${year}`;
-            
-            // Format time as HH:MM (24-hour format)
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const formattedTime = `${hours}:${minutes}`;
+            const timeSlot = now.toLocaleString('en-IN', { 
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true 
+            });
             
             // Prepare URL with parameters
             const params = new URLSearchParams({
                 action: 'addData',
                 timestamp: now.toISOString(),
-                date: formattedDate,
-                timeSlot: formattedTime,
+                date: now.toLocaleDateString('en-IN'),
+                timeSlot: timeSlot,
                 user1: formData.get('user1') || 'null',
                 user2: formData.get('user2') || 'null',
                 user3: formData.get('user3') || 'null',
@@ -349,7 +344,7 @@
                     // Redirect to dashboard after 2 seconds
                     setTimeout(() => {
                         window.location.href = './dashboard.html';
-                    }, 1000);
+                    }, 2000);
                 } else {
                     errorMsg.style.display = 'block';
                     errorMsg.textContent = '❌ ' + (result.message || 'Error submitting data. Please try again.');
